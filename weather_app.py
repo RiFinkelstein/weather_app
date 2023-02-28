@@ -4,11 +4,17 @@ from tabulate import tabulate
 
 parser = argparse.ArgumentParser(
     description='Get weather information for a location')
-parser.add_argument('--location', type=str, required=True,
+parser.add_argument('--location', type=str, required=False,
                     help='The location for which to get weather information')
 
 args = parser.parse_args()
 location = args.location
+
+if args.location:
+    location = args.location
+else:
+    location = input(
+        "Enter the location for which to get weather information: ")
 
 print(location)
 
