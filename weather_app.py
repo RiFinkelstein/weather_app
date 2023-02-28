@@ -25,13 +25,13 @@ data = response.json()
 # Check if "main" key exists in data dictionary
 if "main" in data:
     # Extract the relevant weather information
-    temperature = data["main"]["temp"]
+    temperature = data["main"]["temp"]-273.15
     humidity = data["main"]["humidity"]
     wind_speed = data["wind"]["speed"]
     description = data["weather"][0]["description"]
 
     # Print the weather information
-    print(f"The temperature in {location} is {temperature} K")
+    print(f"The temperature in {location} is {temperature:.1f} °C")
     print(f"The humidity in {location} is {humidity}%")
     print(f"The wind speed in {location} is {wind_speed} m/s")
     print(f"The weather description in {location} is {description}")
