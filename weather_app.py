@@ -1,10 +1,13 @@
+# Import necessary libraries
 import requests
 import argparse
 from tabulate import tabulate
 import datetime
 import pytz
+import os
 
 
+# Define command line arguments
 parser = argparse.ArgumentParser(
     description='Get weather information for a location')
 parser.add_argument('--location', type=str, required=False,
@@ -12,74 +15,126 @@ parser.add_argument('--location', type=str, required=False,
 parser.add_argument('--unit', type=str, required=False,
                     help='The temperature unit to display (C or F)')
 
+# Parse the command line arguments
 args = parser.parse_args()
-location = args.location
+
+# Get the location from command line arguments or user input
+
+user_location = args.location
 
 if args.location:
-    location = args.location
+    user_location = args.location
 else:
-    location = input(
-        "Enter the location for which to get weather information: ")
+    while True:
+        user_location = input(
+            "Enter the location for which to get weather information: ")
+        if user_location:
+            break
+        else:
+            print("Location cannot be empty!")
 
-print(location)
+print(user_location)
 
-# ask what tempurture unit
+# Get the temperature unit from command line arguments or user input
 if args.unit:
     unit = args.unit.upper()
 else:
-    unit = input("Enter the temperature unit to display (C or F): ").upper()
+    while True:
+        unit = input(
+            "Enter the temperature unit to display (C or F): ").upper()
+        if unit in ['C', 'F']:
+            break
+        else:
+            print('Invalid temperature unit! please enter \'C\' or \'F\'.')
 
-
+# Set the API key for the OpenWeatherMap API
 api_key = "c80b1a2d82ff9185cbe2051652745fb7"
 
-# Make the API request
-url = f"http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}"
-response = requests.get(url)
+# Build the API request URL
+url = f"http://api.openweathermap.org/data/2.5/weather?q={user_location}&appid={api_key}"\
+
+# Send the API request and get the response
+try:
+    response = requests.get(url)
+    response.raise_for_status()
+except requests.exceptions.HTTPError as error:
+    print(
+        f"Sorry, there was an error getting weather information for {user_location}.")
+    print(f"Error message: {error}")
+    exit()
+except requests.exceptions.ConnectionError as error:
+    print(f"Sorry, could not establish connection to weather API.")
+    print(f"Error message: {error}")
+    exit()
+except requests.exceptions.Timeout as error:
+    print(f"Sorry, connection to weather API timed out.")
+    print(f"Error message: {error}")
+    exit()
+except requests.exceptions.RequestException as error:
+    print(f"Sorry, there was an error with the request to weather API.")
+    print(f"Error message: {error}")
+    exit()
+
+# Send the API request and get the response
+# response = requests.get(url)
+
+# Check if the API returned a 404 error (location not found)
+if response.status_code == 404:
+    print(
+        f"Sorry, {user_location} not found!.")
+    print(f"Error code: {response.status_code}")
+    exit()
+
+# Check if the API request was successful
+if response.status_code != 200:
+    print(
+        f"Sorry, there was an error getting weather information for {user_location}.")
+    print(f"Error code: {response.status_code}")
+    exit()
 
 # Parse the JSON response
 data = response.json()
 
-# Define datetime_str
-datetime_str = ""
+# Check if "main" key exists in data dictionary
+if "main" not in data:
+    print(
+        f"Sorry, there was an error getting weather information for {user_location}.")
+    exit()
 
-# Define temperature
-temperature = 0
+# Initialize datetime_str and temperature variables
+# datetime_str = ""
+# temperature = 0
 
 # Check if "main" key exists in data dictionary
-if "main" in data:
-    # Extract the relevant weather information
-    temperature_kelvin = data["main"]["temp"]
-    humidity = data["main"]["humidity"]
-    wind_speed = data["wind"]["speed"]
-    description = data["weather"][0]["description"]
-    timezone_offset = data["timezone"]
+# if "main" in data:
+# Extract the relevant weather information
+temperature_kelvin = data["main"]["temp"]
+humidity = data["main"]["humidity"]
+wind_speed = data["wind"]["speed"]
+description = data["weather"][0]["description"]
+timezone_offset = data["timezone"]
 
-    # Convert temperature to the specified unit
-    if unit == "F":
-        temperature = (temperature_kelvin) * 9/5 + 32
-        unit_symbol = "°F"
-    elif unit == "C":
-        temperature = temperature_kelvin - 273.15
-        unit_symbol = "°C"
-    else:
-        temperature = temperature_kelvin
-        unit_symbol = "K"
-
-    # Get the timezone for the location
-    timezone = datetime.timedelta(seconds=timezone_offset)
-
-    # Get the current time in the timezone of the location
-    now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc) + timezone
-
-    # Format the date and time string
-    datetime_str = now.strftime("%Y-%m-%d %H:%M:%S %Z%z")
-
-    # Print the weather information
-    print(f"The date & time right now is: {datetime_str}")
-    print(f"The temperature in {location} is {temperature:.1f} °C")
-    print(f"The humidity in {location} is {humidity}%")
-    print(f"The wind speed in {location} is {wind_speed} m/s")
-    print(f"The weather description in {location} is {description}")
-
+# Convert temperature to the specified unit
+if unit == "F":
+    temperature = (temperature_kelvin) * 9/5 + 32
+    unit_symbol = "°F"
 else:
-    print("sorry there is an error")
+    temperature = temperature_kelvin - 273.15
+    unit_symbol = "°C"
+
+
+# Get the timezone for the location
+timezone = datetime.timedelta(seconds=timezone_offset)
+
+# Get the current time in the timezone of the location
+now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc) + timezone
+
+# Format the date and time string
+datetime_str = now.strftime("%Y-%m-%d %H:%M:%S %Z%z")
+
+# Print the weather information
+print(f"The date & time right now is: {datetime_str}")
+print(f"The temperature in {user_location} is {temperature:.1f} °C")
+print(f"The humidity in {user_location} is {humidity}%")
+print(f"The wind speed in {user_location} is {wind_speed} m/s")
+print(f"The weather description in {user_location} is {description}")
