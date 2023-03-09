@@ -2,10 +2,13 @@ import requests
 import argparse
 from tabulate import tabulate
 
+
 parser = argparse.ArgumentParser(
     description='Get weather information for a location')
 parser.add_argument('--location', type=str, required=False,
                     help='The location for which to get weather information')
+parser.add_argument('--unit', type=str, required=False,
+                    help='The temperature unit to display (C or F)')
 
 args = parser.parse_args()
 location = args.location
@@ -17,6 +20,12 @@ else:
         "Enter the location for which to get weather information: ")
 
 print(location)
+
+# ask what empurture unit
+if args.unit:
+    unit = args.unit.upper()
+else:
+    unit = input("Enter the temperature unit to display (C or F): ").upper()
 
 
 api_key = "c80b1a2d82ff9185cbe2051652745fb7"
@@ -31,15 +40,24 @@ data = response.json()
 # Check if "main" key exists in data dictionary
 if "main" in data:
     # Extract the relevant weather information
-    temperature = data["main"]["temp"]-273.15
+    temperature_kelvin = data["main"]["temp"]
     humidity = data["main"]["humidity"]
     wind_speed = data["wind"]["speed"]
     description = data["weather"][0]["description"]
+
+    # Convert temperature to the specified unit
+    if unit == "F":
+        temperature = (temperature_kelvin) * 9/5 + 32
+        unit_symbol = "°F"
+    elif unit == "C":
+        temperature = temperature_kelvin - 273.15
+        unit_symbol = "°C"
+    else:
+        temperature = temperature_kelvin
+        unit_symbol = "K"
 
     # Print the weather information
     print(f"The temperature in {location} is {temperature:.1f} °C")
     print(f"The humidity in {location} is {humidity}%")
     print(f"The wind speed in {location} is {wind_speed} m/s")
     print(f"The weather description in {location} is {description}")
-else:
-    print("Unable to retrieve weather information for the specified location.")
