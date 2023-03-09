@@ -66,10 +66,10 @@ if "main" in data:
         unit_symbol = "K"
 
     # Get the timezone for the location
-    timezone = pytz.timezone(f'Etc/GMT{timezone_offset//3600:+d}')
+    timezone = datetime.timedelta(seconds=timezone_offset)
 
     # Get the current time in the timezone of the location
-    now = datetime.datetime.now(tz=timezone)
+    now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc) + timezone
 
     # Format the date and time string
     datetime_str = now.strftime("%Y-%m-%d %H:%M:%S %Z%z")
