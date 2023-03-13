@@ -7,8 +7,11 @@ requests library
 argparse library
 tabulate library
 pytz library
+Before running the script, make sure to install the requests library by running the following command:
+pip install requests
 
-Usage
+
+## Usage
 The script takes two optional command-line arguments:
 
 --location: The location for which to get weather information. If this argument is not provided, the script will prompt the user to enter one or more locations.
