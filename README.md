@@ -1,4 +1,4 @@
-#weather_app
+# weather_app
 ###This Python script retrieves weather information for a given location using the OpenWeatherMap API. The script asks the user for the location and the unit of temperature they want to receive weather information on.
 
 ##Requirements
