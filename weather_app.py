@@ -138,3 +138,6 @@ for user_location in user_locations:
     print(f'The humidity in {user_location} is {humidity}%')
     print(f'The wind speed in {user_location} is {wind_speed} m/s')
     print(f'The weather description in {user_location} is {description}')
+
+if __name__ == '__main__':
+    main()
