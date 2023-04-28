@@ -8,7 +8,7 @@ Date: [03/10/2023]
 # Import necessary libraries
 import requests
 import argparse
-from tabulate import tabulate
+#from tabulate import tabulate
 import datetime
 import pytz
 import os
